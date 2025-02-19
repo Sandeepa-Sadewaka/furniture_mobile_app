@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:furniture_app/BeforeLoginPage.dart';
-import 'package:furniture_app/HomePage.dart';
+import 'package:furniture_app/Screens/BeforeLoginPage.dart';
+import 'package:furniture_app/Screens/HomePage.dart';
 import 'package:furniture_app/component/BottomNavBar.dart';
-import 'package:furniture_app/login.dart';
+import 'package:furniture_app/Screens/login.dart';
 
 void main() {
   runApp(const MyApp());
