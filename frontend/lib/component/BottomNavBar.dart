@@ -7,7 +7,8 @@ import '../Screens/Cart.dart';
 import '../Screens/Profile.dart';
 
 class Bottomnavbar extends StatefulWidget {
-  const Bottomnavbar({super.key});
+  final bool isLogin;
+  const Bottomnavbar({required this.isLogin, super.key});
 
   @override
   State<Bottomnavbar> createState() => _BottomnavbarState();
@@ -16,7 +17,7 @@ class Bottomnavbar extends StatefulWidget {
 class _BottomnavbarState extends State<Bottomnavbar> {
   int _currentIndex = 0;
   late List<Widget> pages =[
-    Homepage(),
+    Homepage(isLogin: widget.isLogin,),
     Cart(),
     Profile()
   ];

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:furniture_app/Screens/HomePage.dart';
+import 'package:furniture_app/Screens/RegisterPage.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -20,6 +21,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:   Colors.grey[300],
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -120,7 +122,7 @@ class _LoginState extends State<Login> {
                     GestureDetector(
                       onTap: () {
                         if(_formKey.currentState!.validate()){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> Homepage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> Homepage(isLogin: true,)));
                           emailController.clear();
                           passwordController.clear();
                         }
@@ -143,13 +145,17 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     SizedBox(
-                      height: 150,
+                      height: 130,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("Don't have an account?"),
-                        TextButton(onPressed: () {}, child: Text("Sign Up"))
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>Registerpage()));
+                          }, 
+                          child: Text("Sign Up"))
                       ],
                     )
                   ],

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+  final bool isLogin;
+  const Homepage({required this.isLogin, super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -130,11 +131,13 @@ class _HomepageState extends State<Homepage> {
                                       child: Row(
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.only(left: 10),
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
                                         child: Text(
                                           "Shop Now ",
                                           style: GoogleFonts.outfit(
-                                              color: Colors.white, fontSize: 17),
+                                              color: Colors.white,
+                                              fontSize: 17),
                                         ),
                                       ),
                                       Icon(
@@ -154,7 +157,8 @@ class _HomepageState extends State<Homepage> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Container(width: double.infinity,
+            child: Container(
+              width: double.infinity,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -167,7 +171,8 @@ class _HomepageState extends State<Homepage> {
                           width: 120,
                           decoration: BoxDecoration(
                               color: Colors.orange,
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.grey,
@@ -177,7 +182,8 @@ class _HomepageState extends State<Homepage> {
                               ]),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Text("Beds",
                                   style: GoogleFonts.outfit(
                                       color: Colors.white, fontSize: 17)),
@@ -191,7 +197,8 @@ class _HomepageState extends State<Homepage> {
                           width: 120,
                           decoration: BoxDecoration(
                               color: Colors.orange,
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.grey,
@@ -201,7 +208,8 @@ class _HomepageState extends State<Homepage> {
                               ]),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Text("Sofas",
                                   style: GoogleFonts.outfit(
                                       color: Colors.white, fontSize: 17)),
@@ -215,7 +223,8 @@ class _HomepageState extends State<Homepage> {
                           width: 120,
                           decoration: BoxDecoration(
                               color: Colors.orange,
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.grey,
@@ -225,7 +234,8 @@ class _HomepageState extends State<Homepage> {
                               ]),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Text("Chairs",
                                   style: GoogleFonts.outfit(
                                       color: Colors.white, fontSize: 17)),
@@ -239,7 +249,8 @@ class _HomepageState extends State<Homepage> {
                           width: 120,
                           decoration: BoxDecoration(
                               color: Colors.orange,
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.grey,
@@ -249,7 +260,8 @@ class _HomepageState extends State<Homepage> {
                               ]),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Text("Tables",
                                   style: GoogleFonts.outfit(
                                       color: Colors.white, fontSize: 17)),
@@ -271,7 +283,9 @@ class _HomepageState extends State<Homepage> {
                 child: Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10,),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                      ),
                       child: Container(
                         margin: EdgeInsets.only(left: 10),
                         width: 200,
@@ -279,34 +293,28 @@ class _HomepageState extends State<Homepage> {
                           color: Colors.white,
                           borderRadius: BorderRadius.all(Radius.circular(15)),
                         ),
-                        child: Column(
-                          children: [
-                            Image(image: AssetImage("assets/Images/chair_1.png"),
+                        child: Column(children: [
+                          Image(
+                            image: AssetImage("assets/Images/chair_1.png"),
                             height: 180,
                             width: 180,
-                            ),
-                            Text("Dining Chairs",
-                            style: GoogleFonts.outfit( 
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18
-                            )),
-                            Text("Rs. 1000",
-                            style: GoogleFonts.outfit(
-                              color: Colors.black,
-                              fontSize: 20
-                            )
-                            )
-                          ]
-                        ),
-                        ),
+                          ),
+                          Text("Dining Chairs",
+                              style: GoogleFonts.outfit(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18)),
+                          Text("Rs. 1000",
+                              style: GoogleFonts.outfit(
+                                  color: Colors.black, fontSize: 20))
+                        ]),
+                      ),
                     )
                   ],
                 ),
               ),
             ),
           )
-
         ]),
       ),
     );

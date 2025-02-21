@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:furniture_app/Screens/BeforeLoginPage.dart';
 import 'package:furniture_app/Screens/HomePage.dart';
+import 'package:furniture_app/Screens/RegisterPage.dart';
 import 'package:furniture_app/component/BottomNavBar.dart';
 import 'package:furniture_app/Screens/login.dart';
 
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Login()
+      home: Registerpage()
     );
   }
 }
