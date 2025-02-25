@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:furniture_app/ApiServise/ApiService.dart';
 import 'package:furniture_app/Screens/HomePage.dart';
 import 'package:furniture_app/Screens/RegisterPage.dart';
 
@@ -120,12 +121,18 @@ class _LoginState extends State<Login> {
                       height: 100,
                     ),
                     GestureDetector(
-                      onTap: () {
+                      
+                      onTap: () async {
+                        Apiservice apiservice = Apiservice();
+                        var userData = {
+                            "email": emailController.text,
+                            "password": passwordController.text
+                          };
                         if(_formKey.currentState!.validate()){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> Homepage(isLogin: true,)));
-                          emailController.clear();
-                          passwordController.clear();
+                           apiservice.fetchUser(userData, context);
                         }
+
+
                       },
                       child: Container(
                         height: 50,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:furniture_app/ApiServise/ApiService.dart';
 import 'package:furniture_app/Screens/login.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class Registerpage extends StatefulWidget {
   const Registerpage({super.key});
@@ -167,28 +166,11 @@ class _RegisterpageState extends State<Registerpage> {
                               "password": passwordController.text,
                             };
                             if (_formKey.currentState!.validate()) {
-                              Future<bool?> result =
-                                  apiservice.registerUser(userData, context);
-                              // ignore: unrelated_type_equality_checks
-                              if (await result == true) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text("User Registration Succes")));
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Login()));
+                              apiservice.registerUser(userData, context);
 
-                                emailController.clear();
-                                passwordController.clear();
-                                reTypePasswordController.clear();
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text("User Registration Fail")));
-                              }
+                              emailController.clear();
+                              passwordController.clear();
+                              reTypePasswordController.clear();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

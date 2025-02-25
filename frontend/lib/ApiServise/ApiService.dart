@@ -15,7 +15,7 @@ class Apiservice {
   Apiservice._internal();
 
   /// Register User
-  Future<bool?> registerUser(
+  Future<void> registerUser(
       Map<String, dynamic> users, BuildContext context) async {
     final url = Uri.parse("${baseUrl}registerusers");
 
@@ -28,31 +28,64 @@ class Apiservice {
 
       if (response.statusCode == 200) {
         print("Registraion Success  : ${response.statusCode}");
-        return true;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("User Registration Succes")));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Login()));
       } else {
         print("Failed to register: ${response.statusCode}");
-        return false;
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("User Registration Fail")));
       }
     } catch (e) {
       print("Error: $e");
-      return null;
     }
   }
 
+
+
+
+
+
+
   // fetch users
-  Future<List<dynamic>> fetchUser() async {
+  Future<void> fetchUser(Map<String, dynamic> user, BuildContext context) async {
+    final url = Uri.parse("${baseUrl}login");
+    print(user);
     try {
-      final response = await http.get(Uri.parse('$baseUrl/users'));
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(user),
+      );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        Map<String, dynamic> data =  jsonDecode(response.body);
+        print(data['email']);
+        print("/n");
+        print(user['email']);
+        print(data['email'] == user['email']);
+
+        String password = data['password'];
+        print(password);
+        print("/n");
+        print(user['password']);
+        print(password == user['password']);
+        
+        if(data['email'] == user['email'] && data['password'] == user['password']){
+          print("User Data Matched");
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Loged In")));
+          /*Navigator.push(context, MaterialPageRoute(builder: (context) => BottomNavBar()));*/
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Invalid Credentials")));
+        }
+
       } else {
         print("Failed to load users: ${response.statusCode}");
-        return [];
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to load users")));
       }
     } catch (e) {
       print("Error: $e");
-      return [];
     }
   }
 }
