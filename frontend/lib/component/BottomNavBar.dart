@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:furniture_app/Screens/Cart.dart';
 import 'package:furniture_app/Screens/HomePage.dart';
 import 'package:furniture_app/Screens/Profile.dart';
-import '../Screens/Cart.dart';
-import '../Screens/Profile.dart';
 
 class Bottomnavbar extends StatefulWidget {
-  final bool isLogin;
-  const Bottomnavbar({required this.isLogin, super.key});
+  const Bottomnavbar({ super.key});
 
   @override
   State<Bottomnavbar> createState() => _BottomnavbarState();
@@ -17,7 +14,7 @@ class Bottomnavbar extends StatefulWidget {
 class _BottomnavbarState extends State<Bottomnavbar> {
   int _currentIndex = 0;
   late List<Widget> pages =[
-    Homepage(isLogin: widget.isLogin,),
+    Homepage(),
     Cart(),
     Profile()
   ];

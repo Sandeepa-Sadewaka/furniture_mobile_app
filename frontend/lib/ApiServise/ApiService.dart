@@ -1,9 +1,11 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'package:flutter/material.dart';
+import 'package:furniture_app/Provider/auth_provider.dart';
 import 'package:furniture_app/Screens/login.dart';
+import 'package:furniture_app/component/BottomNavBar.dart';
 import 'package:furniture_app/utils/constaints.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class Apiservice {
   static final Apiservice _instance = Apiservice._internal();
@@ -40,6 +42,7 @@ class Apiservice {
     } catch (e) {
       print("Error: $e");
     }
+
   }
 
 
@@ -61,21 +64,12 @@ class Apiservice {
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data =  jsonDecode(response.body);
-        print(data['email']);
-        print("/n");
-        print(user['email']);
-        print(data['email'] == user['email']);
 
-        String password = data['password'];
-        print(password);
-        print("/n");
-        print(user['password']);
-        print(password == user['password']);
-        
         if(data['email'] == user['email'] && data['password'] == user['password']){
           print("User Data Matched");
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Loged In")));
-          /*Navigator.push(context, MaterialPageRoute(builder: (context) => BottomNavBar()));*/
+          Provider.of<Authprovider>(context, listen: false).login();
+          Navigator.push(context, MaterialPageRoute(builder: (context) => Bottomnavbar()));
         }else{
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Invalid Credentials")));
         }
@@ -88,4 +82,28 @@ class Apiservice {
       print("Error: $e");
     }
   }
+
+
+  
+    // get all items
+    Future <List<dynamic>> getItems()async{
+      final url = Uri.parse("${baseUrl}products");
+      try {
+        final response = await http.get(
+          url,
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          );
+        if(response.statusCode == 200){
+          List<dynamic> data = jsonDecode(response.body);
+          return data;
+        }else{
+          print("Failed to load items: ${response.statusCode}");
+          return [];
+        }
+      } catch (e) {
+        print("Error: $e");
+        return [];
+      }
+
+    }
 }

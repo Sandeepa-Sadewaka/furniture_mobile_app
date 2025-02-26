@@ -71,7 +71,6 @@ app.post('/api/registerusers', async (req, res) => {
 
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
-    console.log(`Request body: ${JSON.stringify(req.body)}`);
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required' });
@@ -86,7 +85,6 @@ app.post('/api/login', async (req, res) => {
         }
 
         const user = users[0];
-        console.log(`User found: ${JSON.stringify(user)}`);
 
         // Compare passwords (plaintext, not secure)
         if (user.password !== password) {
@@ -97,6 +95,21 @@ app.post('/api/login', async (req, res) => {
     } catch (error) {
         console.error("Login Error:", error); // Log the actual error
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+
+    
+});
+
+
+// get  all items
+app.get('/api/products', async (req, res) => {
+    try {
+        console.log('Fetching all items');
+        const [items] = await pool.query('SELECT * FROM products');
+        res.status(200).json(items);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 

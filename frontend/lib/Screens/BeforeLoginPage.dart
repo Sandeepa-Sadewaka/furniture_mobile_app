@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:furniture_app/Screens/HomePage.dart';
 import 'package:furniture_app/Screens/login.dart';
 import 'package:furniture_app/component/BottomNavBar.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -85,7 +84,7 @@ class _BeforeloginpageState extends State<Beforeloginpage> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>Bottomnavbar(isLogin: false)));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>Bottomnavbar()));
               },
               child: Container(
                   height: 50,
