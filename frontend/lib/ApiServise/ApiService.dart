@@ -68,8 +68,11 @@ class Apiservice {
         if(data['email'] == user['email'] && data['password'] == user['password']){
           print("User Data Matched");
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Loged In")));
+
           Provider.of<Authprovider>(context, listen: false).login();
+          Provider.of<Authprovider>(context, listen: false).setMail(data['email']);
           Navigator.push(context, MaterialPageRoute(builder: (context) => Bottomnavbar()));
+
         }else{
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Invalid Credentials")));
         }
@@ -105,5 +108,38 @@ class Apiservice {
         return [];
       }
 
+    }
+
+
+
+    // add to cart
+    Future<void> addToCart(Map<String, dynamic> cart, BuildContext context)async{
+      final url = Uri.parse("${baseUrl}addtocart");
+        print(cart['userID']);
+        print(cart['productId']);
+        print(cart['quantity']);
+      try {
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode(cart),
+          );
+        if(response.statusCode == 200){
+          print("Item Added to Cart");
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Item Added to Cart")));
+        }else{
+          print("Failed to add item to cart: ${response.statusCode}");
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to add item to cart")));
+        }
+      } catch (e) {
+        print("Error: $e");
+      } 
+      
+      
+      
+      
+      catch (e) {
+        print("Error: $e");
+      }
     }
 }

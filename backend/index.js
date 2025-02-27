@@ -50,8 +50,8 @@ checkDatabaseConnection();
 app.post('/api/registerusers', async (req, res) => {
     const { email, userName, password } = req.body;
 
-   
-    if (!email || !password|| !userName) {
+
+    if (!email || !password || !userName) {
         return res.status(400).json({
             error: 'Email, Uer name and password are required'
         });
@@ -59,10 +59,10 @@ app.post('/api/registerusers', async (req, res) => {
 
     try {
         const [result] = await pool.query(
-            'INSERT INTO users (email,userName, password) VALUES (?, ?, ?)', [email ,userName ,password]
+            'INSERT INTO users (email,userName, password) VALUES (?, ?, ?)', [email, userName, password]
         );
 
-        res.status(200).json({ id: result.insertId, email,userName,password }); 
+        res.status(200).json({ id: result.insertId, email, userName, password });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -97,7 +97,7 @@ app.post('/api/login', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 
-    
+
 });
 
 
@@ -113,3 +113,25 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+app.post('/api/addtocart', async (req, res) => {
+    const {userID, productId, quantity } = req.body;
+    console.log('user_id:', userID);
+    console.log('product_id:', productId);
+    console.log('quantity:',quantity );
+    
+    if (!userID || !productId || !quantity) {
+        return res.status(400).json({ error: 'User ID, Product ID and quantity are required' });
+    }
+    try {
+        console.log('Adding item to cart');
+        const [result] = await pool.query(
+            'INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)', 
+            [userID, productId, quantity]
+        );
+        
+        res.status(200).json({ MessageEvent: 'Item added to cart'});
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});

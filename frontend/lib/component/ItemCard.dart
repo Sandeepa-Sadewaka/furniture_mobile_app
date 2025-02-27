@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:furniture_app/ApiServise/ApiService.dart';
+import 'package:furniture_app/Screens/ItemDetails.dart';
 
 class Itemcard extends StatefulWidget {
   const Itemcard({super.key});
@@ -36,7 +37,9 @@ class _ItemcardState extends State<Itemcard> {
               ),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
+
                 var item = snapshot.data![index];
+
                 return Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -52,12 +55,17 @@ class _ItemcardState extends State<Itemcard> {
                   ),
                   child: Column(
                     children: [
-                      Image.network(
-                        item["image_url"] ?? "https://via.placeholder.com/150",
-                        height: 120,
-                        width: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 100),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Itemdetails(item: item)));
+                        },
+                        child: Image.network(
+                          item["image_url"] ?? "https://via.placeholder.com/150",
+                          height: 120,
+                          width: 120,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, size: 100),
+                        ),
                       ),
                       SizedBox(height: 8),
                       Text(
@@ -67,7 +75,7 @@ class _ItemcardState extends State<Itemcard> {
                       ),
                       Text(
                         "Rs. ${item["price"] ?? "N/A"}",
-                        style: TextStyle(color: Colors.orange),
+                        style: TextStyle(color: Colors.green),
                       ),
                       Row(
                         children: [
