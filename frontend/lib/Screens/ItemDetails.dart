@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:furniture_app/ApiServise/ApiService.dart';
 import 'package:furniture_app/Provider/auth_provider.dart';
+import 'package:furniture_app/Screens/CheckoutPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -13,15 +15,16 @@ class Itemdetails extends StatefulWidget {
 }
 
 class _ItemdetailsState extends State<Itemdetails> {
-  int quentity = 1;
+  int quantity = 1;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          }, icon: Icon(Icons.arrow_back)),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back)),
         centerTitle: true,
         title: Text(
           "Product Details",
@@ -50,70 +53,72 @@ class _ItemdetailsState extends State<Itemdetails> {
             ),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                widget.item['name'],
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold, fontSize: 20),
+              ),
               Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.end, 
                 children: [
-                  Text(
-                    widget.item['name'],
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  Spacer(),
                   Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Center(
-                              child: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    if(quentity>1){
-                                      quentity--;
-                                    }
-                                  });
-                                }, 
-                                icon: Icon(Icons.remove),
-                                color: Colors.white,
-                              ),
-                            ),
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize:
+                          MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment
+                          .center, 
+                      children: [
+                        Container(
+                          height: 40,
+                          width: 40, 
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(5),
                           ),
-                          SizedBox(width: 10),
-                          Text(quentity.toString(),
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                if (quantity > 1) {
+                                  quantity--;
+                                }
+                              });
+                            },
+                            icon: Icon(Icons.remove),
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          quantity.toString(),
                           style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold
-                          ),),
-                          SizedBox(width: 10),
-                          Container(
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Center(
-                              child: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    quentity++;
-                                  });
-                                }, 
-                                icon: Icon(Icons.add),
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        ],
-                      ))
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(width: 10),
+                        Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                quantity++;
+                              });
+                            },
+                            icon: Icon(Icons.add),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 20),
@@ -143,18 +148,18 @@ class _ItemdetailsState extends State<Itemdetails> {
               Expanded(
                 child: GestureDetector(
                   onTap: () {
+                    String _loginmail =
+                        Provider.of<Authprovider>(context, listen: false)
+                            .getMail();
 
-                    String _loginmail = Provider.of<Authprovider>(context, listen: false).getMail();
-                    
                     print(_loginmail);
 
                     Map<String, dynamic> cart = {
                       "userID": _loginmail,
                       "productId": widget.item['id'],
-                      "quantity": quentity,
+                      "quantity": quantity,
                     };
                     Apiservice().addToCart(cart, context);
-
                   },
                   child: Container(
                     height: 50,
@@ -174,6 +179,13 @@ class _ItemdetailsState extends State<Itemdetails> {
               ),
               SizedBox(width: 30),
               Expanded(
+                  child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CheckoutPage(item: widget.item, quantity: quantity)));
+                },
                 child: Container(
                   height: 50,
                   decoration: BoxDecoration(
@@ -183,10 +195,11 @@ class _ItemdetailsState extends State<Itemdetails> {
                   child: Center(
                     child: Text(
                       "Buy Now",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 20),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                   ),
+                ),
               ))
             ],
           )
