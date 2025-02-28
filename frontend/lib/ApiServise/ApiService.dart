@@ -159,81 +159,100 @@ class Apiservice {
   }
 
   // delete cart
- Future<void> deleteCart(int cart_id, BuildContext context) async {
-  final url = Uri.parse("${baseUrl}deletecart?cart_id=$cart_id"); // Use Query Param
+  Future<void> deleteCart(int cart_id, BuildContext context) async {
+    final url =
+        Uri.parse("${baseUrl}deletecart?cart_id=$cart_id"); // Use Query Param
 
-  print("Deleting Cart Item ID: $cart_id");
-  try {
-    final response = await http.delete( // Use DELETE instead of POST
-      url,
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-    );
+    print("Deleting Cart Item ID: $cart_id");
+    try {
+      final response = await http.delete(
+        // Use DELETE instead of POST
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      );
 
-    if (response.statusCode == 200) {
-      print("Item Deleted from Cart");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Item Deleted from Cart")));
-    } else {
-      print("Failed to delete item from cart: ${response.statusCode}");
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Failed to delete item from cart")));
+      if (response.statusCode == 200) {
+        print("Item Deleted from Cart");
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Item Deleted from Cart")));
+      } else {
+        print("Failed to delete item from cart: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to delete item from cart")));
+      }
+    } catch (e) {
+      print("Error: $e");
     }
-  } catch (e) {
-    print("Error: $e");
   }
-}
-
-
 
 // Checkout Single Item
-Future<void> checkoutSingleItem({
-  required String userID,
-  required String productID,
-  required int quantity,
-  required double price,
-}) async {
-  try {
+  Future<void> checkoutSingleItem({
+    required String userID,
+    required String productID,
+    required int quantity,
+    required double price,
+  }) async {
+    try {
+      //  Create Payment Method
+      final paymentMethod = await Stripe.instance.createPaymentMethod(
+        params: PaymentMethodParams.card(
+          paymentMethodData: const PaymentMethodData(),
+        ),
+      );
 
-    // 2️⃣ **Create Payment Method**
-    final paymentMethod = await Stripe.instance.createPaymentMethod(
-      params: PaymentMethodParams.card(
-        paymentMethodData: const PaymentMethodData(), 
-      ),
-    );
+      //  Send Payment & Order Request to Backend
+      final url = Uri.parse("${baseUrl}checkout");
 
-    // 3️⃣ **Send Payment & Order Request to Backend**
-    final url = Uri.parse("${baseUrl}checkout");
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "user_id": userID,
+          "product_id": productID,
+          "quantity": quantity,
+          "price": price,
+          "payment_method_id": paymentMethod.id,
+        }),
+      );
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "user_id": userID,
-        "product_id": productID,
-        "quantity": quantity,
-        "price": price,
-        "payment_method_id": paymentMethod.id,
-      }),
-    );
-
-    // 4️⃣ **Handle API Response**
-    if (response.statusCode == 200) {
-      try {
-        final responseData = jsonDecode(response.body);
-        print("✅ Order Successful: ${responseData['order_id']}");
-        // Show success message to user
-      } catch (e) {
-        print("⚠️ Failed to parse response: $e");
+      // Handle API Response
+      if (response.statusCode == 200) {
+        try {
+          final responseData = jsonDecode(response.body);
+          print(" Order Successful: ${responseData['order_id']}");
+          // Show success message to user
+        } catch (e) {
+          print(" Failed to parse response: $e");
+        }
+      } else {
+        print(" Order Failed: ${response.statusCode}");
+        print(" Error Message: ${response.body}");
       }
-    } else {
-      print("❌ Order Failed: ${response.statusCode}");
-      print("⚠️ Error Message: ${response.body}");
+    } catch (e) {
+      print(" Payment Error: $e");
     }
-  } catch (e) {
-    print("⚠️ Payment Error: $e");
   }
-}
 
+  // Order payment
+  Future<void> checkoutOrder(
+      Map<String, dynamic> order, BuildContext context) async {
+    final url = Uri.parse("${baseUrl}checkout");
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode(order),
+      );
 
-
+      if (response.statusCode == 200) {
+        print("Order Success  : ${response.statusCode}");
+      } else {
+        print("Failed to order: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  }
 }

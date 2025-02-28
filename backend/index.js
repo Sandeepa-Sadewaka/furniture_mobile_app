@@ -194,54 +194,22 @@ app.delete('/api/deletecart', async (req, res) => {
     }
 });
 
+// Checkout Item
 
-
-// API: Checkout Single Item
-router.post("/api/checkout", async (req, res) => {
-    const { email, product_id, quantity, price, payment_method_id } = req.body;
-
-    const connection = await pool.getConnection();
+app.post('/api/checkout', async (req, res) => {
+    const { user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode} = req.body;
 
     try {
-        await connection.beginTransaction();
-
-        // 1️⃣ **Create a PaymentIntent on Stripe**
-        const total_price = price * quantity * 100; // Stripe uses cents
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: total_price,
-            currency: "LKR",
-            payment_method: payment_method_id,
-            confirm: true // Immediately confirm the payment
-        });
-
-        if (paymentIntent.status !== "succeeded") {
-            throw new Error("Payment failed");
-        }
-
-        // 2️⃣ **Insert Order into Database**
-        const [orderResult] = await connection.query(
-            "INSERT INTO orders (email, total_price) VALUES (?, ?)",
-            [email, total_price] 
+        const [result] = await pool.query(
+            'INSERT INTO checkout (user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            [user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode]
         );
-        const order_id = orderResult.insertId;
-
-        // 3️⃣ **Insert Order Item**
-        await connection.query(
-            "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
-            [order_id, product_id, quantity, price]
-        );
-
-        await connection.commit();
-        res.status(200).json({ message: "Payment and Order Success", order_id });
+        // Delete item from cart after checkout
+        await pool.query('DELETE FROM cart WHERE user_id = ? AND product_id = ?', [user_id, product_id]);
+        res.status(200).json({ message: 'Item checked out successfully' });
 
     } catch (error) {
-        await connection.rollback();
-        console.error("Error processing order:", error);
+        console.error('Error checking out item:', error);
         res.status(500).json({ error: error.message });
-    } finally {
-        connection.release();
     }
 });
-
-
-module.exports = router; 
