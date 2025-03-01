@@ -6,7 +6,7 @@ import 'package:furniture_app/Screens/CartPage.dart';
 import 'package:furniture_app/Screens/HomePage.dart';
 import 'package:furniture_app/Screens/Items.dart';
 import 'package:furniture_app/Screens/RegisterPage.dart';
-import 'package:furniture_app/component/BottomNavBar.dart';
+import 'package:furniture_app/component/NavBarSection.dart';
 import 'package:furniture_app/Screens/login.dart';
 import 'package:provider/provider.dart';
 
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Items(),
+      home: Navbarsection(),
     );
   }
 }

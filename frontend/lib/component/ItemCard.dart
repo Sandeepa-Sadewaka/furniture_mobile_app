@@ -33,7 +33,7 @@ class _ItemcardState extends State<Itemcard> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
-                childAspectRatio: 0.7,
+                childAspectRatio: 0.8,
               ),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
@@ -77,27 +77,24 @@ class _ItemcardState extends State<Itemcard> {
                         "Rs. ${item["price"] ?? "N/A"}",
                         style: TextStyle(color: Colors.green),
                       ),
-                      Row(
-                        children: [
-                          Text("Add to Cart"),
-                          Spacer(),
-                          IconButton(onPressed: (){},
-                           icon: Icon(Icons.add_shopping_cart),
-                           color: Colors.orange,)
-                        ],
-                      ),
-                      Container(
-                        width: 100,
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Center(
-                          child: Text("Buy Now",
-                          style: TextStyle(color: Colors.white),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Itemdetails(item: item)));
+                        },
+                        child: Container(
+                          width: 100,
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(5),
                           ),
-                        )
+                          child: Center(
+                            child: Text("More Details",
+                            style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                        ),
                       )
                     ],
                   ),

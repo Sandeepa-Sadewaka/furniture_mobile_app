@@ -103,7 +103,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               TextFormField(
                 controller: _addressController,
                 decoration: InputDecoration(
-
                   labelText: "Address",
                   hintText: "Enter Your Address",
                   border: OutlineInputBorder(
@@ -119,6 +118,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               SizedBox(height: 10),
               TextFormField(
+                keyboardType: TextInputType.phone,
                 controller: _phoneController,
                 decoration: InputDecoration(
                   labelText: "Phone Number",
@@ -153,6 +153,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               SizedBox(height: 10),
               TextFormField(
+                keyboardType: TextInputType.number,
                 controller: _zipCodeController,
                 decoration: InputDecoration(
                   labelText: "Zip Code",
@@ -171,49 +172,42 @@ class _CheckoutPageState extends State<CheckoutPage> {
               SizedBox(height: 20),
               GestureDetector(
                 onTap: () async {
-
-                 late Future<bool> isPayementSuccess =  StripePaymentService.confirmPaymentIntent(lastPrice!);
-
-                  isPayementSuccess.then((value) {
-                    if (value) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Payment Successful')),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Payment Failed')),
-                      );
-                    }
-                  });
-                  
-
-
-                  String loginMail = Provider.of<Authprovider>(context, listen: false).getMail();
-
-                  print(loginMail);
-                  Map<String, dynamic> order = {
-                    "user_id": loginMail,
-                    'product_id': widget.item["id"],
-                    "quantity": widget.quantity,
-                    "price": lastPrice,
-                    "name": _nameController.text,
-                    "address": _addressController.text,
-                    "phoneNo": _phoneController.text,
-                    "city": _cityController.text,
-                    "zipCode": _zipCodeController.text,
-                  };
                   if (_formKey.currentState!.validate()) {
                     // Add your checkout logic here
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Processing Payment')),
                     );
-                    if (isPayementSuccess == true) {
+
+                    bool isPaymentSuccess = await StripePaymentService.confirmPaymentIntent(lastPrice!);
+
+                    if (isPaymentSuccess) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Payment Successful')),
+                      );
+
+                      String loginMail = Provider.of<Authprovider>(context, listen: false).getMail();
+
+                      Map<String, dynamic> order = {
+                        "user_id": loginMail,
+                        'product_id': widget.item["id"],
+                        "quantity": widget.quantity,
+                        "price": lastPrice,
+                        "name": _nameController.text,
+                        "address": _addressController.text,
+                        "phoneNo": _phoneController.text,
+                        "city": _cityController.text,
+                        "zipCode": _zipCodeController.text,
+                      };
+
                       Apiservice apiService = Apiservice();
                       await apiService.checkoutOrder(order, context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Order Placed Successfully')),
                       );
-                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Payment Failed')),
+                      );
                     }
                   }
                 },

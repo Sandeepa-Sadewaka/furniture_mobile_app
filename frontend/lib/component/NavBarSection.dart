@@ -2,21 +2,21 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:furniture_app/Screens/Cart.dart';
 import 'package:furniture_app/Screens/HomePage.dart';
-import 'package:furniture_app/Screens/Profile.dart';
+import 'package:furniture_app/Screens/Orders.dart';
 
-class Bottomnavbar extends StatefulWidget {
-  const Bottomnavbar({ super.key});
+class Navbarsection extends StatefulWidget {
+  const Navbarsection({ super.key});
 
   @override
-  State<Bottomnavbar> createState() => _BottomnavbarState();
+  State<Navbarsection> createState() => _BottomnavbarState();
 }
 
-class _BottomnavbarState extends State<Bottomnavbar> {
+class _BottomnavbarState extends State<Navbarsection> {
   int _currentIndex = 0;
   late List<Widget> pages =[
     Homepage(),
     Cart(),
-    Profile()
+    Orders()
   ];
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class _BottomnavbarState extends State<Bottomnavbar> {
         items: [
           Icon(Icons.home, size: 30,),
           Icon(Icons.shopping_cart, size: 30),
-          Icon(Icons.person, size: 30),
+          Icon(Icons.download_done_outlined, size: 30),
           ],
       ),
       body: pages[_currentIndex],

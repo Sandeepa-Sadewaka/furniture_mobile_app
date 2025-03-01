@@ -13,12 +13,12 @@ class StripePaymentService {
       final response = await http.post(
         Uri.parse('https://api.stripe.com/v1/payment_intents'),
         body: {
-          'amount': (amount * 100).toInt().toString(), // ✅ Convert to cents
+          'amount': (amount * 100).toInt().toString(), 
           'currency': 'LKR',
           'payment_method_types[]': 'card',
         },
         headers: {
-          'Authorization': 'Bearer $_stripeSecretKey', // 🚨 Move to backend
+          'Authorization': 'Bearer $_stripeSecretKey',
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       );

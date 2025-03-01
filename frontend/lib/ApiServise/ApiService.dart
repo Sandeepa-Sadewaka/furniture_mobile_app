@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:furniture_app/Provider/auth_provider.dart';
 import 'package:furniture_app/Screens/login.dart';
-import 'package:furniture_app/component/BottomNavBar.dart';
+import 'package:furniture_app/component/NavBarSection.dart';
 import 'package:furniture_app/utils/constaints.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -70,7 +70,7 @@ class Apiservice {
           Provider.of<Authprovider>(context, listen: false)
               .setMail(data['email']);
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Bottomnavbar()));
+              context, MaterialPageRoute(builder: (context) => Navbarsection()));
         } else {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text("Invalid Credentials")));
@@ -253,6 +253,49 @@ class Apiservice {
       print("Error: $e");
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  }
+
+  // fetch one category
+  Future<List<dynamic>> fetchCategory(String category) async {
+    final url = Uri.parse("${baseUrl}category?category=$category");
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data;
+      } else {
+        print("Failed to load items: ${response.statusCode}");
+        return [];
+      }
+    } catch (e) {
+      print("Error: $e");
+      return [];
+    }
+  }
+
+
+  //get orders
+  Future<List<dynamic>> getOrders(String user_id) async {
+    final url = Uri.parse("${baseUrl}orders?user_id=$user_id");
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data;
+      } else {
+        print("Failed to load items: ${response.statusCode}");
+        return [];
+      }
+    } catch (e) {
+      print("Error: $e");
+      return [];
     }
   }
 }

@@ -153,7 +153,7 @@ app.get('/api/cart', async (req, res) => {
 
         // Fetch cart items from the database
         const [cartItems] = await pool.query(
-            `SELECT cart.*, products.*
+            `SELECT cart.*, products.name, products.description, products.price, products.image_url
              FROM cart 
              JOIN products ON cart.product_id = products.id 
              WHERE cart.user_id = ?`, 
@@ -197,19 +197,75 @@ app.delete('/api/deletecart', async (req, res) => {
 // Checkout Item
 
 app.post('/api/checkout', async (req, res) => {
-    const { user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode} = req.body;
+    const { user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode } = req.body;
 
     try {
+        // Insert the order item
         const [result] = await pool.query(
-            'INSERT INTO checkout (user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+            'INSERT INTO order_items (user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
             [user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode]
         );
+
+        if (result.affectedRows === 0) {
+            return res.status(400).json({ message: 'Failed to checkout item' });
+        }
+
         // Delete item from cart after checkout
-        await pool.query('DELETE FROM cart WHERE user_id = ? AND product_id = ?', [user_id, product_id]);
+        const [cartResult] = await pool.query(
+            'SELECT * FROM cart WHERE user_id = ? AND product_id = ?', 
+            [user_id, product_id]
+        );
+
+        if (cartResult.length > 0) {
+            await pool.query('DELETE FROM cart WHERE user_id = ? AND product_id = ?', [user_id, product_id]);
+        }
+
         res.status(200).json({ message: 'Item checked out successfully' });
 
     } catch (error) {
         console.error('Error checking out item:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+//get one category
+app.get('/api/category', async (req, res) => {
+
+    const category = req.query.category;
+    console.log('Category:', category);
+    try {
+        const [items] = await pool.query('SELECT * FROM products WHERE category_id = ?', [category]);
+        res.status(200).json(items);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+//get Order Items
+app.get('/api/orders', async (req, res) => {
+    const { user_id } = req.query;
+
+    try {
+        if (!user_id) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
+        const [items] = await pool.query(
+            'SELECT order_items.*, products.name, products.price, products.image_url FROM order_items ' + 
+            'JOIN products ON order_items.product_id = products.id ' + 
+            'WHERE order_items.user_id = ?', 
+            [user_id]
+        );
+
+        if (items.length === 0) {
+            return res.status(404).json({ error: 'No order items found' });
+        }
+
+        res.status(200).json(items);
+    } catch (error) {
+        console.error('Error:', error);
         res.status(500).json({ error: error.message });
     }
 });

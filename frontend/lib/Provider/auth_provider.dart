@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class Authprovider with ChangeNotifier{
   bool _isLoggedIn = false;
   String _loginmail = 'ss';
+  double _total = 0.0;
 
   bool get isLoggedIn => _isLoggedIn;
   void login(){
@@ -20,6 +21,12 @@ class Authprovider with ChangeNotifier{
   }
   String getMail(){
     return _loginmail;
+  }
+  void setTotal(double total){
+    _total = total;
+  }
+  double getTotal(){
+    return _total;
   }
 
 }

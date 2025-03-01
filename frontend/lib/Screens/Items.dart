@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:furniture_app/Screens/CartPage.dart';
 import 'package:furniture_app/component/ItemCard.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,7 +22,10 @@ class _ItemsState extends State<Items> {
         title: Text("Items",
         style:GoogleFonts.outfit(fontWeight: FontWeight.bold,),),
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.shopping_cart)),
+          IconButton(
+            onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (contect)=>Cartpage()));            }, 
+            icon: Icon(Icons.shopping_cart)),
         ],
       ),
       body: Padding(
