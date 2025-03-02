@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:furniture_app/ApiServise/ApiService.dart';
 import 'package:furniture_app/Provider/auth_provider.dart';
 import 'package:furniture_app/Screens/CheckoutPage.dart';

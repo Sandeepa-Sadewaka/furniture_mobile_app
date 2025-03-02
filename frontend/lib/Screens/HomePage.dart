@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:furniture_app/ApiServise/ApiService.dart';
+import 'package:furniture_app/Screens/ItemDetails.dart';
 import 'package:furniture_app/component/CategoryButton.dart';
 import 'package:furniture_app/Screens/Items.dart';
+import 'package:furniture_app/component/Drawermenu.dart';
 import 'package:furniture_app/component/HomeGridView.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,6 +15,7 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  TextEditingController _searchController = TextEditingController();
   String _selectedCategory = 'C001'; // Default category
 
 
@@ -25,11 +29,8 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer:  Drawermenu(),
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Icon(Icons.menu),
-        ),
         centerTitle: true,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -66,8 +67,8 @@ class _HomepageState extends State<Homepage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: _searchController,
                   decoration: InputDecoration(
-                    filled: true,
                     fillColor: const Color.fromARGB(255, 222, 222, 222),
                     hintText: "Search here...",
                     hintStyle: GoogleFonts.outfit(),
@@ -76,7 +77,24 @@ class _HomepageState extends State<Homepage> {
                     ),
                     contentPadding: EdgeInsets.only(left: 20),
                     suffixIcon: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        String searchQuery = _searchController.text;
+                        List results = await Apiservice().searchProducts(searchQuery);
+                        if (results.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Itemdetails(item: results.first),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('No results found for "$searchQuery"'),
+                            ),
+                          );
+                        }
+                      },
                       icon: Icon(Icons.search),
                       color: Colors.black,
                     ),

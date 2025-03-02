@@ -269,3 +269,16 @@ app.get('/api/orders', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// search products
+app.get('/api/search', async (req, res) => {
+    const { nameItem } = req.query;
+    console.log('Search:', nameItem);
+    try {
+        const [items] = await pool.query('SELECT * FROM products WHERE name LIKE ?', [`%${nameItem}%`]);
+        res.status(200).json(items);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
