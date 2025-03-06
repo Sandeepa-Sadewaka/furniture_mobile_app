@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Authprovider with ChangeNotifier{
   bool _isLoggedIn = false;
-  String _loginmail = 'ss';
+  String _loginmail = '';
   double _total = 0.0;
 
   bool get isLoggedIn => _isLoggedIn;

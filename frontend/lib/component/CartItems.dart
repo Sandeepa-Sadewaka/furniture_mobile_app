@@ -12,6 +12,7 @@ class Cartitems extends StatefulWidget {
 }
 
 class _CartitemsState extends State<Cartitems> {
+  double _totalCartPrice = 0;
   @override
   Widget build(BuildContext context) {
     String _loginmail = Provider.of<Authprovider>(context, listen: false).getMail();
@@ -34,9 +35,11 @@ class _CartitemsState extends State<Cartitems> {
           sum += double.parse(snapshot.data![i]['price'].toString()) * 
                  double.parse(snapshot.data![i]['quantity'].toString());
         }
-
+        
         // Update total in provider
+        
         Provider.of<Authprovider>(context, listen: false).setTotal(sum);
+      
 
         // Cart Items List
         return ListView.builder(

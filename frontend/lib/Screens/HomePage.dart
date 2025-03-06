@@ -17,7 +17,20 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   TextEditingController _searchController = TextEditingController();
   String _selectedCategory = 'C001'; // Default category
+  List<dynamic> _searchResults = [];
 
+  // Fetch search results dynamically
+  void _searchProducts(String query) async {
+    if (query.isEmpty) {
+      setState(() => _searchResults = []);
+      return;
+    }
+
+    List<dynamic> results = await Apiservice().searchProducts(query);
+    setState(() {
+      _searchResults = results;
+    });
+  }
 
   // Update category selection
   void _updateCategory(String category) {
@@ -29,7 +42,7 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer:  Drawermenu(),
+      drawer: Drawermenu(),
       appBar: AppBar(
         centerTitle: true,
         title: Row(
@@ -38,218 +51,178 @@ class _HomepageState extends State<Homepage> {
             Text(
               "Home ",
               style: GoogleFonts.outfit(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange),
+                  fontSize: 25, fontWeight: FontWeight.bold, color: Colors.orange),
             ),
             Text(
               "Nest",
               style: GoogleFonts.outfit(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black),
+                  fontSize: 25, fontWeight: FontWeight.bold, color: Colors.black),
             )
           ],
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10),
-            child:
-                IconButton(onPressed: () {}, icon: Icon(Icons.notifications)),
+            child: IconButton(onPressed: () {}, icon: Icon(Icons.notifications)),
           )
         ],
       ),
-      body: Center(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    fillColor: const Color.fromARGB(255, 222, 222, 222),
-                    hintText: "Search here...",
-                    hintStyle: GoogleFonts.outfit(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    contentPadding: EdgeInsets.only(left: 20),
-                    suffixIcon: IconButton(
-                      onPressed: () async {
-                        String searchQuery = _searchController.text;
-                        List results = await Apiservice().searchProducts(searchQuery);
-                        if (results.isNotEmpty) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Itemdetails(item: results.first),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('No results found for "$searchQuery"'),
-                            ),
-                          );
-                        }
-                      },
-                      icon: Icon(Icons.search),
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  color: const Color.fromARGB(57, 255, 153, 0)),
-              child: Row(
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Search Bar with Drop-down List
+            Padding(
+              padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+              child: Column(
                 children: [
-                  Image(
-                    image: AssetImage("assets/Images/chair_1.png"),
-                    height: 180,
-                    width: 180,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          " Don't miss out! ",
-                          style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold, fontSize: 25),
-                        ),
-                        Text(
-                          " This sale ends.",
-                          style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold, fontSize: 25),
-                        ),
-                        Text(
-                          " soon.",
-                          style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold, fontSize: 25),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20, left: 60),
-                          child: Container(
-                            height: 40,
-                            width: 120,
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 0, 0, 0),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 5),
-                                )
-                              ],
-                            ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Shop Now ",
-                                    style: GoogleFonts.outfit(
-                                        color: Colors.white, fontSize: 17),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    color: Colors.white,
-                                    size: 18,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                  TextField(
+                    controller: _searchController,
+                    onChanged: _searchProducts, // Fetch results as user types
+                    decoration: InputDecoration(
+                      fillColor: const Color.fromARGB(255, 222, 222, 222),
+                      hintText: "Search here...",
+                      hintStyle: GoogleFonts.outfit(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      contentPadding: EdgeInsets.only(left: 20),
+                      suffixIcon: Icon(Icons.search, color: Colors.black),
                     ),
-                  )
+                  ),
+
+                  // Search Results Dropdown
+                  if (_searchResults.isNotEmpty)
+                    Container(
+                      margin: EdgeInsets.only(top: 5),
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black26, blurRadius: 4),
+                        ],
+                      ),
+                      constraints: BoxConstraints(maxHeight: 200), // Limits dropdown height
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _searchResults.length,
+                        itemBuilder: (context, index) {
+                          var item = _searchResults[index];
+                          return ListTile(
+                            title: Text(item['name']),
+                            onTap: () {
+                              _searchController.text = item['name'];
+                              setState(() {
+                                _searchResults = [];
+                              });
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Itemdetails(item: item),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
                 ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: SizedBox(
-              width: double.infinity,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+
+            // Sale Banner
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: const Color.fromARGB(57, 255, 153, 0)),
                 child: Row(
                   children: [
-                    GestureDetector(
-                        onTap: () {
-                          _updateCategory("C001");
-                        },
-                        child: WidgetCategoryButton(
-                          "Beds",
-                        )),
-                    GestureDetector(
-                        onTap: () {
-                          _updateCategory("C002");
-                        },
-                        child: WidgetCategoryButton(
-                          "Sofas",
-                        )),
-                    GestureDetector(
-                        onTap: () {
-                          _updateCategory("C003");
-                        },
-                        child: WidgetCategoryButton(
-                          "Chairs",
-                        )),
-                    GestureDetector(
-                        onTap: () {
-                          _updateCategory("C004");
-                        },
-                        child: WidgetCategoryButton(
-                          "Tables",
-                        ))
+                    Image.asset("assets/Images/chair_1.png", height: 180, width: 180),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(" Don't miss out! ", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 25)),
+                          Text(" This sale ends.", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 25)),
+                          Text(" soon.", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 25)),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 20, left: 60),
+                            child: Container(
+                              height: 40,
+                              width: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5, offset: Offset(0, 5))],
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text("Shop Now ", style: GoogleFonts.outfit(color: Colors.white, fontSize: 17)),
+                                    Icon(Icons.arrow_forward, color: Colors.white, size: 18),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
             ),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>Items()));
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: Container(
+
+            // Category Buttons
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: SizedBox(
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      GestureDetector(onTap: () => _updateCategory("C001"), child: WidgetCategoryButton("Beds")),
+                      GestureDetector(onTap: () => _updateCategory("C002"), child: WidgetCategoryButton("Sofas")),
+                      GestureDetector(onTap: () => _updateCategory("C003"), child: WidgetCategoryButton("Chairs")),
+                      GestureDetector(onTap: () => _updateCategory("C004"), child: WidgetCategoryButton("Tables")),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // "Show More" Button
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Items())),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(
-                      "Show More...    ",
-                      style: GoogleFonts.outfit(
-                          fontSize: 20, 
-                          fontWeight: FontWeight.bold,
-                           color: const Color.fromARGB(255, 0, 0, 0)),
-                    ),
+                    Text("Show More...    ", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
                     Icon(Icons.arrow_forward, color: Colors.black),
                   ],
                 ),
               ),
             ),
-          ),
-          SizedBox(height: 10),
-          Expanded(
-            child: HomeGridView(category: _selectedCategory),
-          ),
-        ]),
+
+            SizedBox(height: 10),
+
+            // GridView for Category Items
+            Container(
+              height: 250, // Set a fixed height for the GridView
+              child: HomeGridView(category: _selectedCategory),
+            ),
+          ],
+        ),
       ),
     );
   }
