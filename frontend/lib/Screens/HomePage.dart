@@ -15,7 +15,8 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  TextEditingController _searchController = TextEditingController();
+  Map<dynamic, dynamic> _saleItem = {};
+  final TextEditingController _searchController = TextEditingController();
   String _selectedCategory = 'C001'; // Default category
   List<dynamic> _searchResults = [];
 
@@ -73,7 +74,7 @@ class _HomepageState extends State<Homepage> {
           children: [
             // Search Bar with Drop-down List
             Padding(
-              padding: const EdgeInsets.only(top: 20, left: 20, right: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 children: [
                   TextField(
@@ -103,7 +104,7 @@ class _HomepageState extends State<Homepage> {
                           BoxShadow(color: Colors.black26, blurRadius: 4),
                         ],
                       ),
-                      constraints: BoxConstraints(maxHeight: 200), // Limits dropdown height
+                      constraints: BoxConstraints(maxHeight: 200),
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: _searchResults.length,
@@ -138,43 +139,81 @@ class _HomepageState extends State<Homepage> {
                 height: 200,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: const Color.fromARGB(57, 255, 153, 0)),
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  color: const Color.fromARGB(57, 255, 153, 0),
+                ),
                 child: Row(
                   children: [
-                    Image.asset("assets/Images/chair_1.png", height: 180, width: 180),
+                    Expanded(
+                      child: FutureBuilder<List<dynamic>>(
+                        future: Apiservice().getOfferItem(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError || snapshot.data == null || snapshot.data!.isEmpty) {
+                            return Center(child: Text('No Offers Available'));
+                          }
+                          var item = snapshot.data![0];
+                          _saleItem = item as Map; // Update the sale item
+                          print(item);
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.network(
+                              item['image_url'],
+                              fit: BoxFit.cover,
+                              height: double.infinity,
+                              width: double.infinity,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 20),
+                      padding: const EdgeInsets.only(left: 20, right: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(" Don't miss out! ", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 25)),
-                          Text(" This sale ends.", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 25)),
-                          Text(" soon.", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 25)),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 20, left: 60),
-                            child: Container(
-                              height: 40,
-                              width: 120,
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
-                                boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5, offset: Offset(0, 5))],
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Shop Now ", style: GoogleFonts.outfit(color: Colors.white, fontSize: 17)),
-                                    Icon(Icons.arrow_forward, color: Colors.white, size: 18),
-                                  ],
+                          Text("Don't miss out!", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 22)),
+                          Text("This sale ends soon.", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 22)),
+                          SizedBox(height: 20),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Itemdetails(item: _saleItem),
                                 ),
-                              ),
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Container(
+                                  height: 40,
+                                  width: 120,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 5, offset: Offset(0, 5))],
+                                  ),
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text("Shop Now ", style: GoogleFonts.outfit(color: Colors.white, fontSize: 17)),
+                                        Icon(Icons.arrow_forward, color: Colors.white, size: 18),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -203,7 +242,7 @@ class _HomepageState extends State<Homepage> {
             GestureDetector(
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => Items())),
               child: Padding(
-                padding: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.only(right: 10, top: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -218,7 +257,7 @@ class _HomepageState extends State<Homepage> {
 
             // GridView for Category Items
             Container(
-              height: 250, // Set a fixed height for the GridView
+              height: 250,
               child: HomeGridView(category: _selectedCategory),
             ),
           ],

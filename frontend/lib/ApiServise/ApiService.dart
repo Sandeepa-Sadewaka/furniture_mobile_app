@@ -42,7 +42,8 @@ class Apiservice {
       }
     } catch (e) {
       print("Error: $e");
-    }
+        return ;
+      }
   }
 
   // fetch users
@@ -321,4 +322,26 @@ class Apiservice {
       return [];
     }
   }
+
+  //get offer item
+  Future<List<dynamic>> getOfferItem() async {
+    final url = Uri.parse("${baseUrl}offers");
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      );
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data;
+      } else {
+        print("Failed to load items: ${response.statusCode}");
+        return [];
+      }
+    } catch (e) {
+      print("Error: $e");
+      return [];
+    }
+  }
+
 }

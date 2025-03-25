@@ -12,7 +12,6 @@ class Cartitems extends StatefulWidget {
 }
 
 class _CartitemsState extends State<Cartitems> {
-  double _totalCartPrice = 0;
   @override
   Widget build(BuildContext context) {
     String _loginmail = Provider.of<Authprovider>(context, listen: false).getMail();

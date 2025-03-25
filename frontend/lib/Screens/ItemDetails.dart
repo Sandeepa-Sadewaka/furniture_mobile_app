@@ -58,8 +58,7 @@ class _ItemdetailsState extends State<Itemdetails> {
                     fontWeight: FontWeight.bold, fontSize: 20),
               ),
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.end, 
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
                     padding: EdgeInsets.all(10),
@@ -67,14 +66,12 @@ class _ItemdetailsState extends State<Itemdetails> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
-                      mainAxisSize:
-                          MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, 
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
                           height: 40,
-                          width: 40, 
+                          width: 40,
                           decoration: BoxDecoration(
                             color: Colors.orange,
                             borderRadius: BorderRadius.circular(5),
@@ -153,12 +150,17 @@ class _ItemdetailsState extends State<Itemdetails> {
 
                     print(_loginmail);
 
-                    Map<String, dynamic> cart = {
-                      "userID": _loginmail,
-                      "productId": widget.item['id'],
-                      "quantity": quantity,
-                    };
-                    Apiservice().addToCart(cart, context);
+                    if (_loginmail == '') {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("please login first")));
+                    } else {
+                      Map<String, dynamic> cart = {
+                        "userID": _loginmail,
+                        "productId": widget.item['id'],
+                        "quantity": quantity,
+                      };
+                      Apiservice().addToCart(cart, context);
+                    }
                   },
                   child: Container(
                     height: 50,
@@ -180,10 +182,18 @@ class _ItemdetailsState extends State<Itemdetails> {
               Expanded(
                   child: GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CheckoutPage(item: widget.item, quantity: quantity)));
+                  String loginmail =
+                      Provider.of<Authprovider>(context, listen: false).getMail();
+                  if (loginmail == "") {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("please login first")));
+                  } else {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CheckoutPage(
+                                item: widget.item, quantity: quantity)));
+                  }
                 },
                 child: Container(
                   height: 50,

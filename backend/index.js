@@ -282,3 +282,18 @@ app.get('/api/search', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+app.get('/api/offers', async (req, res) => {
+    try {
+        const [items] = await pool.query(`
+            SELECT products.*, offers.*
+            FROM products
+            JOIN offers ON products.id = offers.product_id
+        `);
+        res.json(items);
+    } catch (error) {
+        console.error('Error fetching offers:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
