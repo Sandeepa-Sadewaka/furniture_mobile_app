@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:furniture_app/Provider/auth_provider.dart';
 import 'package:furniture_app/Screens/BeforeLoginPage.dart';
-import 'package:furniture_app/Screens/CartPage.dart';
-import 'package:furniture_app/Screens/HomePage.dart';
-import 'package:furniture_app/Screens/Items.dart';
-import 'package:furniture_app/Screens/RegisterPage.dart';
-import 'package:furniture_app/component/NavBarSection.dart';
-import 'package:furniture_app/Screens/login.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
