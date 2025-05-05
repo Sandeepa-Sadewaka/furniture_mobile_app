@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:furniture_app/ApiServise/ApiService.dart';
 import 'package:furniture_app/Provider/auth_provider.dart';
 import 'package:furniture_app/Screens/CheckoutPage.dart';
+import 'package:furniture_app/Screens/login.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -153,6 +154,7 @@ class _ItemdetailsState extends State<Itemdetails> {
                     if (_loginmail == '') {
                       ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("please login first")));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
                     } else {
                       Map<String, dynamic> cart = {
                         "userID": _loginmail,
@@ -187,6 +189,8 @@ class _ItemdetailsState extends State<Itemdetails> {
                   if (loginmail == "") {
                     ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("please login first")));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+
                   } else {
                     Navigator.push(
                         context,

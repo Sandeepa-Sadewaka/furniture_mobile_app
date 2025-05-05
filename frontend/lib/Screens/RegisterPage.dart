@@ -49,7 +49,7 @@ class _RegisterpageState extends State<Registerpage> {
                         fontWeight: FontWeight.bold,
                       )),
                   SizedBox(
-                    height: 50,
+                    height: 20,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -201,7 +201,7 @@ class _RegisterpageState extends State<Registerpage> {
                     ),
                   ),
                   SizedBox(
-                    height: 70,
+                    height: 20,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

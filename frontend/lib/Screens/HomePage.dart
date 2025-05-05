@@ -155,7 +155,7 @@ class _HomepageState extends State<Homepage> {
                             return Center(child: Text('No Offers Available'));
                           }
                           var item = snapshot.data![0];
-                          _saleItem = item as Map; // Update the sale item
+                          _saleItem = item as Map; 
                           print(item);
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(20),

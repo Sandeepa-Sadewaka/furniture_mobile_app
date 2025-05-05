@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:furniture_app/Screens/BeforeLoginPage.dart';
+import 'package:furniture_app/Screens/Cart.dart';
+import 'package:furniture_app/Screens/Orders.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Drawermenu extends StatefulWidget {
@@ -51,11 +54,35 @@ class _DrawermenuState extends State<Drawermenu> {
               ),
             ),
           ),
+          ListTile(
+            leading: Icon(Icons.home),
+            title: Text('Home'),
+            onTap:() {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.shopping_cart),
+            title: Text('Cart'),
+            onTap:() {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Cart()));
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.list_alt),
+            title: Text('Orders'),
+            onTap:() {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Orders()));
+            },
+          ),
+          
           SizedBox(height: 250),
           ListTile(
             leading: Icon(Icons.logout),
             title: Text('Logout'),
-            onTap: () => Navigator.pop(context),
+            onTap:() {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Beforeloginpage()));
+            },
           ),
         ],
       ),

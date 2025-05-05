@@ -29,7 +29,7 @@ class _HomeGridViewState extends State<HomeGridView> {
                crossAxisCount: 2,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
-                childAspectRatio: 0.85,
+                childAspectRatio: 0.8,
             ),
             itemCount: products.length < 2 ? products.length : 2,
             itemBuilder: (context, index) {

@@ -88,15 +88,14 @@ app.post('/api/login', async (req, res) => {
         }
 
         const user = users[0];
-
-        // Compare passwords (plaintext, not secure)
+        
         if (user.password !== password) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
         res.status(200).json({ password: user.password, email: user.email });
     } catch (error) {
-        console.error("Login Error:", error); // Log the actual error
+        console.error("Login Error:", error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 
