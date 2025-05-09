@@ -20,7 +20,8 @@ class Apiservice {
   /// Register User
   Future<void> registerUser(
       Map<String, dynamic> users, BuildContext context) async {
-    final url = Uri.parse("${baseUrl}registerusers");
+    
+    final url = Uri.parse("${baseUrl}auth/register");
 
     try {
       final response = await http.post(
@@ -42,14 +43,14 @@ class Apiservice {
       }
     } catch (e) {
       print("Error: $e");
-        return ;
-      }
+      return;
+    }
   }
 
   // fetch users
   Future<void> fetchUser(
       Map<String, dynamic> user, BuildContext context) async {
-    final url = Uri.parse("${baseUrl}login");
+    final url = Uri.parse("${baseUrl}auth/login");
     print(user);
     try {
       final response = await http.post(
@@ -70,8 +71,8 @@ class Apiservice {
           Provider.of<Authprovider>(context, listen: false).login();
           Provider.of<Authprovider>(context, listen: false)
               .setMail(data['email']);
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => Navbarsection()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => Navbarsection()));
         } else {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text("Invalid Credentials")));
@@ -136,55 +137,58 @@ class Apiservice {
     }
   }
 
-  Future<List<dynamic>> fetchCartItems(String user_id) async {
-    final url = Uri.parse("${baseUrl}cart?user_id=$user_id");
+  Future<List<dynamic>> fetchCartItems(String userId) async {
+  final url = Uri.parse('${baseUrl}cart?user_id=$userId');
 
-    try {
-      final response = await http.get(
-        url,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      );
+  try {
+    final response = await http.get(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = jsonDecode(response.body);
-        return data;
-      } else {
-        print(
-            "Failed to load cart items: ${response.statusCode} - ${response.body}");
-        return [];
-      }
-    } catch (e) {
-      print("Error fetching cart: $e");
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print('Failed to load cart items: ${response.statusCode} - ${response.body}');
       return [];
     }
+  } catch (e) {
+    print('Error fetching cart: $e');
+    return [];
   }
+}
+Future<void> deleteCart(int cartId, BuildContext context) async {
+  print("Deleting Cart ID: $cartId");
 
-  // delete cart
-  Future<void> deleteCart(int cart_id, BuildContext context) async {
-    final url =
-        Uri.parse("${baseUrl}deletecart?cart_id=$cart_id"); // Use Query Param
+  final url = Uri.parse('$baseUrl/cart/$cartId'); // FIXED here!
 
-    print("Deleting Cart Item ID: $cart_id");
-    try {
-      final response = await http.delete(
-        // Use DELETE instead of POST
-        url,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+  try {
+    final response = await http.delete(
+      url,
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+    );
+
+    if (response.statusCode == 200) {
+      print("Item deleted from cart");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Item deleted from cart")),
       );
-
-      if (response.statusCode == 200) {
-        print("Item Deleted from Cart");
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Item Deleted from Cart")));
-      } else {
-        print("Failed to delete item from cart: ${response.statusCode}");
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to delete item from cart")));
-      }
-    } catch (e) {
-      print("Error: $e");
+    } else {
+      print("Failed to delete item from cart: ${response.statusCode}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to delete item from cart")),
+      );
     }
+  } catch (e) {
+    print("Error deleting cart item: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("An error occurred while deleting")),
+    );
   }
+}
+
+
+
 
 // Checkout Single Item
   Future<void> checkoutSingleItem({
@@ -259,7 +263,7 @@ class Apiservice {
 
   // fetch one category
   Future<List<dynamic>> fetchCategory(String category) async {
-    final url = Uri.parse("${baseUrl}category?category=$category");
+    final url = Uri.parse("${baseUrl}products/category?category=$category");
     try {
       final response = await http.get(
         url,
@@ -277,7 +281,6 @@ class Apiservice {
       return [];
     }
   }
-
 
   //get orders
   Future<List<dynamic>> getOrders(String user_id) async {
@@ -300,10 +303,9 @@ class Apiservice {
     }
   }
 
-
   //search products
   Future<List<dynamic>> searchProducts(String nameItem) async {
-    final url = Uri.parse("${baseUrl}search?nameItem=$nameItem");
+    final url = Uri.parse("${baseUrl}products/search?nameItem=$nameItem");
     print(nameItem);
     try {
       final response = await http.get(
@@ -325,7 +327,7 @@ class Apiservice {
 
   //get offer item
   Future<List<dynamic>> getOfferItem() async {
-    final url = Uri.parse("${baseUrl}offers");
+    final url = Uri.parse("${baseUrl}products/offers");
     try {
       final response = await http.get(
         url,
@@ -343,5 +345,4 @@ class Apiservice {
       return [];
     }
   }
-
 }

@@ -169,6 +169,40 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   return null;
                 },
               ),
+              SizedBox(height: 35,),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        // Add your payment logic here
+                      },
+                      child: Container(
+                        width: 200,
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 104, 107, 190),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_on, color: Colors.white),
+                            SizedBox(width: 10),
+                            Text(
+                              "Set Location",
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
               SizedBox(height: 20),
               GestureDetector(
                 onTap: () async {
@@ -217,7 +251,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: Colors.orange,
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Text(
                     "Proceed to Payment",

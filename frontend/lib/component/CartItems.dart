@@ -66,7 +66,7 @@ class _CartitemsState extends State<Cartitems> {
                 ),
               ),
               title: Text(
-                item['name'],
+                item['product_name'],
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Column(
