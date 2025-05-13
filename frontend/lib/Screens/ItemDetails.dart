@@ -7,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class Itemdetails extends StatefulWidget {
-  final item;
+  final dynamic item;
   const Itemdetails({required this.item, super.key});
 
   @override
@@ -16,207 +16,244 @@ class Itemdetails extends StatefulWidget {
 
 class _ItemdetailsState extends State<Itemdetails> {
   int quantity = 1;
+
   @override
   Widget build(BuildContext context) {
+    final imageUrl = widget.item['image_url'] ?? '';
+    final name = widget.item['name'] ?? 'Product Name';
+    final description = widget.item['description'] ?? 'No description available';
+
+    // Safely parse price
+    final price = double.tryParse(widget.item['price'].toString()) ?? 0.0;
+    final productId = widget.item['id']?.toString() ?? '';
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.arrow_back)),
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back),
+        ),
         centerTitle: true,
         title: Text(
           "Product Details",
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.bold,
-          ),
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.all(20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: NetworkImage(widget.item['image_url']),
-                    fit: BoxFit.cover)),
-          ),
-          SizedBox(height: 30),
-          Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                widget.item['name'],
-                style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold, fontSize: 20),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product Image
+            Container(
+              height: 300,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[200],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 300,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.image_not_supported, size: 50),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Product Details Card
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
+                  Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                if (quantity > 1) {
-                                  quantity--;
-                                }
-                              });
-                            },
-                            icon: Icon(Icons.remove),
-                            color: Colors.white,
-                          ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Quantity Selector
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Quantity:",
+                        style: GoogleFonts.poppins(fontSize: 16),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          quantity.toString(),
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () => setState(() {
+                                if (quantity > 1) quantity--;
+                              }),
+                              icon: const Icon(Icons.remove),
+                              color: Colors.orange,
+                            ),
+                            Text(
+                              quantity.toString(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => setState(() => quantity++),
+                              icon: const Icon(Icons.add),
+                              color: Colors.orange,
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 10),
-                        Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                quantity++;
-                              });
-                            },
-                            icon: Icon(Icons.add),
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Description
+                  Text(
+                    "Description",
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    description,
+                    style: GoogleFonts.poppins(fontSize: 15),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Price
+                  Text(
+                    "Rs. ${price.toStringAsFixed(2)}",
+                    style: GoogleFonts.poppins(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
-              Text(
-                "Description",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
-              SizedBox(height: 10),
-              Text(
-                widget.item['description'],
-                style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-              SizedBox(height: 10),
-              Text(
-                "Rs. ${widget.item['price']}",
-                style: GoogleFonts.poppins(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
-              ),
-            ]),
-          ),
-          SizedBox(height: 50),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    String _loginmail =
-                        Provider.of<Authprovider>(context, listen: false)
-                            .getMail();
+            ),
+            const SizedBox(height: 30),
 
-                    print(_loginmail);
-
-                    if (_loginmail == '') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("please login first")));
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
-                    } else {
-                      Map<String, dynamic> cart = {
-                        "userID": _loginmail,
-                        "productId": widget.item['id'],
-                        "quantity": quantity,
-                      };
-                      Apiservice().addToCart(cart, context);
-                    }
-                  },
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(10),
+            // Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    child: Center(
-                      child: Text(
-                        "Add to Cart",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                    onPressed: () {
+                      final authProvider = Provider.of<Authprovider>(
+                        context,
+                        listen: false,
+                      );
+                      final loginMail = authProvider.getMail();
+
+                      if (loginMail.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Please login first")),
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Login()),
+                        );
+                      } else {
+                        final cartItem = {
+                          "userID": loginMail,
+                          "productId": productId,
+                          "quantity": quantity,
+                        };
+                        Apiservice().addToCart(cartItem, context);
+                      }
+                    },
+                    child: Text(
+                      "Add to Cart",
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(width: 30),
-              Expanded(
-                  child: GestureDetector(
-                onTap: () {
-                  String loginmail =
-                      Provider.of<Authprovider>(context, listen: false).getMail();
-                  if (loginmail == "") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("please login first")));
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
-
-                  } else {
-                    Navigator.push(
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      final loginMail = Provider.of<Authprovider>(
                         context,
-                        MaterialPageRoute(
+                        listen: false,
+                      ).getMail();
+
+                      if (loginMail.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Please login first")),
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Login()),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
                             builder: (context) => CheckoutPage(
-                                item: widget.item, quantity: quantity)));
-                  }
-                },
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
+                              item: widget.item,
+                              quantity: quantity,
+                            ),
+                          ),
+                        );
+                      }
+                    },
                     child: Text(
                       "Buy Now",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
-              ))
-            ],
-          )
-        ]),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

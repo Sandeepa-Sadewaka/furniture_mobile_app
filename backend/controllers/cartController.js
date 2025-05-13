@@ -3,18 +3,19 @@ const pool = require('../config/db');
 module.exports = {
   addToCart: async (req, res, next) => {
     try {
-      const { userId, productId, quantity } = req.body;
+      const { userID, productId, quantity } = req.body;
       
-      if (!userId || !productId || !quantity) {
+      if (!userID || !productId || !quantity) {
+    console.log("addToCart called with body:", req.body);
         return res.status(400).json({ error: 'All fields are required' });
       }
 
       const [result] = await pool.query(
         'INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)',
-        [userId, productId, quantity]
+        [userID, productId, quantity]
       );
       
-      res.status(201).json({ 
+      res.status(200).json({ 
         message: 'Item added to cart',
         cartId: result.insertId
       });
@@ -24,7 +25,6 @@ module.exports = {
   },
   
   getCartItems: async (req, res, next) => {
-    console.log("getCartItems called with query:", req.query);
     try {
       const { user_id } = req.query;
   

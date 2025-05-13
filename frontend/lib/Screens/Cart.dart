@@ -49,43 +49,6 @@ class _CartState extends State<Cart> {
           child: Column(
             children: [
               Expanded(child: Cartitems()),
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  border: BorderDirectional(
-                    top: BorderSide(
-                      color: Colors.black12,
-                      width: 5,
-                    ),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(31, 0, 0, 0),
-                    )
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Total Amount",
-                          style: GoogleFonts.poppins(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          "Rs. $total",
-                          style: GoogleFonts.poppins(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                ),
-              ),
             ],
           ),
         ),

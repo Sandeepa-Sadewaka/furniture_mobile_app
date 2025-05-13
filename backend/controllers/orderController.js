@@ -1,84 +1,96 @@
 const pool = require('../config/db');
 
-module.exports = {
-  checkout: async (req, res, next) => {
-    try {
-      const { userId, items, address, phone, city, zipCode } = req.body;
-      
-      // Validate input
-      if (!userId || !items || !Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({ error: 'Invalid order data' });
-      }
+module.exports = {checkout: async (req, res, next) => {
+  try {
+    console.log('Order controller loaded');
+    const {
+      user_id,
+      product_id,
+      quantity,
+      price,
+      name,
+      address,
+      phoneNo,
+      city,
+      zipCode
+    } = req.body;
 
-      // Start transaction
-      const conn = await pool.getConnection();
-      await conn.beginTransaction();
-
-      try {
-        // Create order
-        const [orderResult] = await conn.query(
-          'INSERT INTO orders (user_id, address, phone, city, zip_code) VALUES (?, ?, ?, ?, ?)',
-          [userId, address, phone, city, zipCode]
-        );
-        const orderId = orderResult.insertId;
-
-        // Add order items
-        for (const item of items) {
-          await conn.query(
-            'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
-            [orderId, item.productId, item.quantity, item.price]
-          );
-        }
-
-        // Clear cart
-        await conn.query('DELETE FROM cart WHERE user_id = ?', [userId]);
-
-        await conn.commit();
-        res.status(201).json({ 
-          message: 'Order placed successfully',
-          orderId 
-        });
-      } catch (err) {
-        await conn.rollback();
-        throw err;
-      } finally {
-        conn.release();
-      }
-    } catch (error) {
-      next(error);
+    // Validate input
+    if (
+      !user_id || !product_id || !quantity || !price ||
+      !name || !address || !phoneNo || !city || !zipCode
+    ) {
+      return res.status(400).json({ error: 'All fields are required' });
     }
-  },
 
-  getOrderHistory: async (req, res, next) => {
+    // Start transaction
+    const conn = await pool.getConnection();
+    await conn.beginTransaction();
+
     try {
-      const { userId } = req.query;
-      
-      if (!userId) {
-        return res.status(400).json({ error: 'User ID is required' });
-      }
+      // Create order
+      const [orderResult] = await conn.query(
+        `INSERT INTO order_items 
+         (user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [user_id, product_id, quantity, price, name, address, phoneNo, city, zipCode]
+      );
 
-      const [orders] = await pool.query(`
-        SELECT o.*, 
-          JSON_ARRAYAGG(
-            JSON_OBJECT(
-              'productId', oi.product_id,
-              'name', p.name,
-              'quantity', oi.quantity,
-              'price', oi.price,
-              'imageUrl', p.image_url
-            )
-          ) as items
-        FROM orders o
-        JOIN order_items oi ON o.id = oi.order_id
-        JOIN products p ON oi.product_id = p.id
-        WHERE o.user_id = ?
-        GROUP BY o.id
-        ORDER BY o.created_at DESC
-      `, [userId]);
-      
-      res.status(200).json(orders);
-    } catch (error) {
-      next(error);
+      const orderId = orderResult.insertId;
+
+      // Clear cart for that product
+      await conn.query(
+        'DELETE FROM cart WHERE user_id = ? AND product_id = ?',
+        [user_id, product_id]
+      );
+
+      await conn.commit();
+
+      res.status(201).json({
+        message: 'Order placed successfully',
+        orderId
+      });
+    } catch (err) {
+      await conn.rollback();
+      console.error('Transaction error:', err);
+      res.status(500).json({ error: 'Failed to place order' });
+    } finally {
+      conn.release();
     }
+  } catch (error) {
+    console.error('Checkout error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
+},// GET /api/orders?user_id=123
+getOrderHistory: async (req, res, next) => {
+  console.log('Get order history controller loaded');
+  try {
+    const { user_id } = req.query;
+
+    if (!user_id) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    const [orders] = await pool.query(`
+      SELECT 
+        oi.product_id,
+        p.name,
+        oi.quantity,
+        oi.price,
+        oi.address,
+        oi.phoneNo,
+        p.image_url
+      FROM order_items oi
+      JOIN products p ON oi.product_id = p.id
+      WHERE oi.user_id = ?
+      ORDER BY oi.id DESC
+    `, [user_id]);
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error fetching order history:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 };

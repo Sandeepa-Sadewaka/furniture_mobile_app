@@ -111,7 +111,7 @@ class Apiservice {
   // add to cart
   Future<void> addToCart(
       Map<String, dynamic> cart, BuildContext context) async {
-    final url = Uri.parse("${baseUrl}addtocart");
+    final url = Uri.parse("${baseUrl}cart");
     print(cart['userID']);
     print(cart['productId']);
     print(cart['quantity']);
@@ -160,7 +160,7 @@ class Apiservice {
 Future<void> deleteCart(int cartId, BuildContext context) async {
   print("Deleting Cart ID: $cartId");
 
-  final url = Uri.parse('$baseUrl/cart/$cartId'); // FIXED here!
+  final url = Uri.parse('${baseUrl}cart/$cartId'); // FIXED here!
 
   try {
     final response = await http.delete(
@@ -241,7 +241,7 @@ Future<void> deleteCart(int cartId, BuildContext context) async {
   // Order payment
   Future<void> checkoutOrder(
       Map<String, dynamic> order, BuildContext context) async {
-    final url = Uri.parse("${baseUrl}checkout");
+    final url = Uri.parse("${baseUrl}orders/checkout");
     try {
       final response = await http.post(
         url,
