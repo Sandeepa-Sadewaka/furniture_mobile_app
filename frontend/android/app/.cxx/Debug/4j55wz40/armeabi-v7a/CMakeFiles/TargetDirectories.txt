@@ -1,2 +1,0 @@
-E:/Github/furniture_app/frontend/android/app/.cxx/Debug/4j55wz40/armeabi-v7a/CMakeFiles/edit_cache.dir
-E:/Github/furniture_app/frontend/android/app/.cxx/Debug/4j55wz40/armeabi-v7a/CMakeFiles/rebuild_cache.dir

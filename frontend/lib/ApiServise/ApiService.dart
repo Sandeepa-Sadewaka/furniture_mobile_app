@@ -239,8 +239,9 @@ Future<void> deleteCart(int cartId, BuildContext context) async {
   }
 
   // Order payment
-  Future<void> checkoutOrder(
+  Future<bool> checkoutOrder(
       Map<String, dynamic> order, BuildContext context) async {
+        print("Order ID: ${order['order_id']}");
     final url = Uri.parse("${baseUrl}orders/checkout");
     try {
       final response = await http.post(
@@ -250,14 +251,15 @@ Future<void> deleteCart(int cartId, BuildContext context) async {
       );
 
       if (response.statusCode == 200) {
-        print("Order Success  : ${response.statusCode}");
+        return true;
       } else {
-        print("Failed to order: ${response.statusCode}");
+        return false;
       }
     } catch (e) {
       print("Error: $e");
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Error: $e")));
+          return false;
     }
   }
 

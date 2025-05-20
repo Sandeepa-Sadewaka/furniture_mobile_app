@@ -17,6 +17,7 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/locations', require('./routes/locationRoutes'));
+app.use('/api/stripe', require('./routes/stripeRoutes'));
 
 // Test route
 app.get('/', (req, res) => {

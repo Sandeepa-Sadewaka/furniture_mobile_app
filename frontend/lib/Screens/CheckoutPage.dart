@@ -26,12 +26,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   late double totalPrice;
   LatLng? _selectedLocation;
-  String? _selectedAddress;
+  String _selectedAddress = '';
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
-    totalPrice = double.parse(widget.item["price"]?.toString() ?? '0') * widget.quantity;
+    totalPrice =
+        double.parse(widget.item["price"]?.toString() ?? '0') * widget.quantity;
   }
 
   @override
@@ -45,26 +47,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Future<void> _selectLocation(BuildContext context) async {
-    await Navigator.push(
+    final userEmail = Provider.of<Authprovider>(context, listen: false).getMail();
+    // ignore: unnecessary_null_comparison
+    if (userEmail == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
+
+    final result = await Navigator.push<LatLng>(
       context,
       MaterialPageRoute(
         builder: (context) => LocationSelectionScreen(
-          onLocationSelected: (LatLng location, String? address) {
+          onLocationSelected: (LatLng location, String address) {
             setState(() {
               _selectedLocation = location;
               _selectedAddress = address;
-              if (address != null && _addressController.text.isEmpty) {
-                _addressController.text = address;
-              }
+              _addressController.text = address;
             });
           },
+          userId: userEmail,
         ),
       ),
     );
+
+    if (result != null) {
+      setState(() {
+        _selectedLocation = result;
+      });
+    }
   }
 
   Future<void> _processPayment(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
 
     if (_selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,21 +94,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return;
     }
 
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
+
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     scaffoldMessenger.showSnackBar(
       const SnackBar(content: Text('Processing Payment...')),
     );
 
     try {
-      final isPaymentSuccess = await StripePaymentService.confirmPaymentIntent(totalPrice);
+      debugPrint('Starting payment process for amount: $totalPrice');
+      final paymentResult = await StripePaymentService.confirmPayment(totalPrice, context);
 
-      if (!isPaymentSuccess) {
+      if (!paymentResult.isSuccess) {
+        debugPrint('Payment failed: ${paymentResult.message}');
         scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text('Payment Failed')),
+          SnackBar(
+            content: Text(paymentResult.message),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: () => _processPayment(context),
+            ),
+          ),
         );
         return;
       }
 
+      debugPrint('Payment successful, creating order...');
       final authProvider = Provider.of<Authprovider>(context, listen: false);
       final loginMail = authProvider.getMail();
 
@@ -105,17 +139,62 @@ class _CheckoutPageState extends State<CheckoutPage> {
         "longitude": _selectedLocation!.longitude,
       };
 
-      await Apiservice().checkoutOrder(order, context);
-
+      bool orderResult = await Apiservice().checkoutOrder(order, context);
+      
+      if (orderResult) {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('Order Placed Successfully!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } else {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('Order creation failed. Payment was successful but order was not created.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e, stack) {
+      debugPrint('Checkout process failed: $e\n$stack');
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Order Placed Successfully')),
+        SnackBar(
+          content: const Text('Payment processing failed'),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Details',
+            onPressed: () => showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Error Details'),
+                content: SingleChildScrollView(
+                  child: Text(
+                    'Error: ${e.toString()}\n\n'
+                    'Please try again or contact support if the problem persists.',
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('OK'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _processPayment(context);
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       );
-
-      Navigator.popUntil(context, (route) => route.isFirst);
-    } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+    } finally {
+      setState(() => _isProcessing = false);
     }
   }
 
@@ -126,7 +205,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Checkout', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        title: Text('Checkout',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -139,13 +219,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
               // Order Summary
               Card(
                 elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Order Summary', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text('Order Summary',
+                          style: GoogleFonts.poppins(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -156,7 +239,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               width: 80,
                               height: 80,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported),
+                              errorBuilder: (_, __, ___) =>
+                                  const Icon(Icons.image_not_supported),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -164,9 +248,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(productName, style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                                Text(productName,
+                                    style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w500)),
                                 Text('Quantity: ${widget.quantity}'),
-                                
                               ],
                             ),
                           ),
@@ -176,9 +261,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Total:', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text('Total:',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
                           Text('\$${totalPrice.toStringAsFixed(2)}',
-                              style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green)),
+                              style: GoogleFonts.poppins(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green)),
                         ],
                       ),
                     ],
@@ -187,45 +277,75 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               const SizedBox(height: 24),
               // Shipping Info
-              Text('Shipping Information', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text('Shipping Information',
+                  style: GoogleFonts.poppins(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
-              _buildTextField(_nameController, 'Full Name', 'Enter your full name'),
-              _buildTextField(_addressController, 'Address', 'Enter your address'),
-              _buildTextField(_phoneController, 'Phone Number', 'Enter your phone number', keyboardType: TextInputType.phone),
+              _buildTextField(
+                  _nameController, 'Full Name', 'Enter your full name'),
+              _buildTextField(
+                  _addressController, 'Address', 'Enter your address'),
+              _buildTextField(
+                  _phoneController, 'Phone Number', 'Enter your phone number',
+                  keyboardType: TextInputType.phone),
               Row(
                 children: [
-                  Expanded(child: _buildTextField(_cityController, 'City', 'Enter city')),
+                  Expanded(
+                      child: _buildTextField(
+                          _cityController, 'City', 'Enter city')),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildTextField(_zipCodeController, 'Zip Code', 'Enter zip code', keyboardType: TextInputType.number)),
+                  Expanded(
+                      child: _buildTextField(
+                          _zipCodeController, 'Zip Code', 'Enter zip code',
+                          keyboardType: TextInputType.number)),
                 ],
               ),
               const SizedBox(height: 20),
               // Location Button
               OutlinedButton.icon(
-                onPressed: () => _selectLocation(context),
+                onPressed: _isProcessing ? null : () => _selectLocation(context),
                 icon: Icon(
-                  _selectedLocation != null ? Icons.check_circle : Icons.location_on,
+                  _selectedLocation != null
+                      ? Icons.check_circle
+                      : Icons.location_on,
                   color: _selectedLocation != null ? Colors.green : Colors.blue,
                 ),
                 label: Text(
-                  _selectedLocation != null ? 'Location Selected' : 'Set Delivery Location',
-                  style: TextStyle(color: _selectedLocation != null ? Colors.green : Colors.blue),
+                  _selectedLocation != null
+                      ? 'Location Selected'
+                      : 'Set Delivery Location',
+                  style: TextStyle(
+                      color: _selectedLocation != null
+                          ? Colors.green
+                          : Colors.blue),
                 ),
               ),
-              if (_selectedAddress != null) ...[
-                const SizedBox(height: 8),
-                Text('Selected Location:', style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-                Text(_selectedAddress!, style: GoogleFonts.poppins()),
-              ],
+              const SizedBox(height: 10),
+              if (_selectedLocation != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Selected Location:',
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                    Text(_selectedAddress, style: GoogleFonts.poppins()),
+                  ],
+                ),
               const SizedBox(height: 24),
               // Payment Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => _processPayment(context),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, padding: const EdgeInsets.symmetric(vertical: 16)),
-                  child: Text('Proceed to Payment',
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  onPressed: _isProcessing ? null : () => _processPayment(context),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.symmetric(vertical: 16)),
+                  child: _isProcessing
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text('Proceed to Payment',
+                          style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
                 ),
               ),
             ],
@@ -235,14 +355,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, String hint,
+  Widget _buildTextField(
+      TextEditingController controller, String label, String hint,
       {TextInputType keyboardType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
-        validator: (value) => value == null || value.isEmpty ? 'Required field' : null,
+        validator: (value) =>
+            value == null || value.isEmpty ? 'Required field' : null,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
